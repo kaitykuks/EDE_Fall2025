@@ -31,7 +31,7 @@ Enter answers to the questions just below the >Answer: prompt.
 
 3. Are there any components of the course about which you feel apprehensive?
 
-> Answer: I am not the most confiednt programmer in general, so I feel apprehensive about producing efficient code and tidy datasets.
+> Answer: I am not the most confident programmer in general, so I feel apprehensive about producing efficient code and tidy datasets.
 
 
 ## 2) GitHub
