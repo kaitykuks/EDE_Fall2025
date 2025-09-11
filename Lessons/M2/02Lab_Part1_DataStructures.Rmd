@@ -3,11 +3,13 @@ title: "Lab 2 - Data Structures in R"
 subtitle: "Environmental Data Analytics"
 author: "John Fay & Luana Lima"
 date: "Fall 2025"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## Objective
 Discuss and navigate different data types in R
- - Vectors
+ - Vectors: sequence of numbers that only contains one data type
  - Matrices
  - Arrays
  - Data frames
@@ -39,10 +41,10 @@ vector1 <- c(1,2,5.3,6,-2,4) # Vector type: Numeric
 vector1
 class(vector1)
 
-vector2 <- c("one","two","three") # Vector type: 
+vector2 <- c("one","two","three") # Vector type: string
 vector2
 
-vector3 <- c(TRUE,TRUE,TRUE,FALSE,TRUE,FALSE) # Vector type:
+vector3 <- c(TRUE,TRUE,TRUE,FALSE,TRUE,FALSE) # Vector type: logical
 vector3
 ```
 
@@ -53,25 +55,25 @@ Add comments below to indicate what each operation does.(First answer is provide
 # Returns the 3rd item in the vector
 vector1[3]
 
-#
+# Returns the maximum value in the vector (does thi only work for numberic forms?)
 max(vector1)
 
-#Create another vector of the values 10 thru 15
+#Creates another vector of the values 10 thru 15, defaults to a delineation of 1
 vector4 <- c(10:15)
 
-#
+# Stitches together vectors - in this form will not be saved to a variable
 c(vector1, vector4)
 
-#
+# Multiplies the two vectors on an index-by-index basis
 vector1 * vector4
 
-#
+# Multiplies each vector entry by a constant
 vector1 * 10
 
-#
+# Converts each entry into uppercase
 toupper(vector2) 
 
-#
+# Inverts each entry of a logical vector
 !vector3
 
 ```
@@ -83,16 +85,16 @@ Find a 5-day forecast of temperatures (Fahrenheit) for Durham, North Carolina. C
 ```{r Vector Exercise}
 
 #Assign to the variable 'temps_F' a vector of high temperatures in F
-
+temps_f <- c(200,81,81,83,83)
 
 #What is the average of these temperatures 
-
+temps_mean <- mean(temps_f)
 
 #Compute the difference between each temperature and the average calculated above
-
+temps_diff <- temps_f - temps_mean  #You don't have to use c here because temps_f is a vector, so it will automatically be a vector.
 
 #Subtract 32 and multiply by 5/9ths to create a vector in Celsius
-
+temps_C <- (temps_f - 32) * (5/9)
 
 ```
 
@@ -103,11 +105,11 @@ Complete the comments below:
 # Matrices ----
 matrix1 <- matrix(1:20, nrow = 5,ncol = 4) # 
 matrix1
-#matrix1 has __ rows and __ columns
+#matrix1 has 5 rows and 4 columns and populates by columns
 
 matrix2 <- matrix(1:20, nrow = 5, ncol = 4, byrow = TRUE) #
 matrix2
-#matrix2 has __ rows and __ columns
+#matrix2 has 5 rows and 4 columns and populates by row first
 
 matrix3 <- matrix(
   data = 1:20, 
@@ -118,7 +120,7 @@ matrix3 <- matrix(
     c("uno", "dos", "tres", "quatro", "cinco"),
     c("un", "deux", "trois", "quatre")
     )
-  ) 
+  ) # dimnames gives the row and columns names
 
 ```
 
@@ -126,17 +128,17 @@ matrix3 <- matrix(
 Add comments in the code chunk below to indicate type of vectors created and what each operation does.
 ```{r Matrix Operations}
 
-matrix1[4, 1] #
+matrix1[4, 1] # Returns row 4, column 1
 
-matrix1[4,  ] #
+matrix1[4,  ] # Returns row 4
 
-matrix1[ , 3] #
+matrix1[ , 3] # Returns column 3
 
-matrix1[c(12, 14)] #
+matrix1[c(12, 14)] # Returns the 12th and 14th entry by columns
 
-matrix1[c(12:14)] #
+matrix1[c(12:14)] # Returns entried 12 through 14
 
-matrix1[2:4, 1:3] #
+matrix1[2:4, 1:3] # Returns the row entries 2-4 and column entries 1-3 (clips data)
 
 #Create a vector of 6 values
 values = c(1, 26, 24, 68, 3, 44)
@@ -163,15 +165,15 @@ matrix4['R2','C1']
 ### Exercise 1b: Matrices
 Compute the mean of column "C2" in matrix4. (Should be 14.5)
 ```{r Matrix Exercise}
-
+mean(matrix4[,2])
 ```
-
-
 
 ## Lists
 ### Creating Lists
 ```{r Creating Lists}
-# Lists ---- 
+# Lists
+# Any data type can go into a list.
+# Ket and Variable pairs
 # Creating Lists
 list1 <- list(
   name = "Maria", 
@@ -196,13 +198,13 @@ list1$age
 names(list1)
 
 #
-list1[1:2]
+list1[1:3]
 
 #
 list1$name = "Janelle"
 
 #
-list1[[4]] = 44
+list1[[3]] = 44
 ```
 
 ## Data Frames
@@ -221,7 +223,7 @@ dataframe1 <- data.frame(d,e,f)
 names(dataframe1) <- c("ID","Color","Passed"); View(dataframe1) # 
 
 #Add a new column to the dataframe
-dataframe1$month <- c('Jan','Feb', 'Mar', 'Apr')
+dataframe1$month <- c('Jan','Feb', 'Mar', 'Apr') # $ is used to add a column
 
 ```
 
