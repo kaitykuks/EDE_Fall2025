@@ -30,7 +30,7 @@ output: pdf_document
 -   File names in ASCII text
 -   No spaces!
 -   Consistent file naming conventions
--   Store data, code, and output in separate folders
+-   Store data, code, and output in separate folders (Data, Code, Output)
 
 ### Version Control
 
@@ -123,11 +123,12 @@ Importantly, you may never call an R object "data". This word is reserved for a 
 
 Run the first line of code below. Then, type in "long" and press `tab`. What happens?
 
-What happens if there is a typo in your code? Type the following in the R window: Long_name_for_illustration longnameforillustration
+What happens if there is a typo in your code? Type the following in the R window: 
+Long_name_for_illustration
+longnameforillustration
 
 ```{r}
 long_name_for_illustration <- 11
-
 ```
 
 ### Comments
