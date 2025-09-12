@@ -136,7 +136,7 @@ matrix1[ , 3] # Returns column 3
 
 matrix1[c(12, 14)] # Returns the 12th and 14th entry by columns
 
-matrix1[c(12:14)] # Returns entried 12 through 14
+matrix1[c(12:14)] # Returns entries 12 through 14
 
 matrix1[2:4, 1:3] # Returns the row entries 2-4 and column entries 1-3 (clips data)
 

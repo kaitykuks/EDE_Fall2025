@@ -1,6 +1,7 @@
 ---
 title: "Assignment 2: Coding Basics"
-author: "Student Name"
+author: "Kaitlyn Kukula"
+date: "September 11, 2025"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -33,9 +34,19 @@ This exercise accompanies the lessons/labs in Environmental Data Analytics on co
 ```{r basics 1}
 #1. 
 
-#2. 
+q1 <- seq(1,55,5) ; q1# Generate a sequence of numbers, display the sequence
+
+
+#2.
+
+q1_mean <- mean(q1) ; q1_mean # Calculate the mean of the above sequence and assign it to a 
+#variable named "question1_mean"
+q1_median <- median(q1) ; q1_median # Calculate the median of the above sequence and assign it 
+#to a variable named "question1_median
 
 #3. 
+
+q1_mean > q1_median # Determine if the mean is greater than the median using a logical operator
 
 ```
 
@@ -51,12 +62,22 @@ This exercise accompanies the lessons/labs in Environmental Data Analytics on co
 
 ```{r basics 2}
 
+q5_i <- c("Jon", "Josh", "Janey", "Brooklyn") # String vector with student names
+q5_ii <-  c(99, 85, 79, 92) # Numeric vector with student test scores
+q5_iii <- c("TRUE", "TRUE", "FALSE", "FALSE") # Boolean vector with student scholarship status
+
+# Create a data frame with student names, test scores, and scholarship status.
+Student_Exam_Data <- data.frame(
+  "Name" = q5_i, 
+  "Test Score" = q5_ii, 
+  "Scholarship Status" = q5_iii) 
+Student_Exam_Data
 
 ```
 
 9.  QUESTION: How is this data frame different from a matrix?
 
-> Answer:
+> Answer: Data frames allow a user to create a table of data containing different data types in each column. A standard matrix requires that all data types be the same. 
 
 10. Create a function with one input. In this function, use `if`...`else` to evaluate the value of the input: if it is greater than 50, print the word "Pass"; otherwise print the word "Fail". 
 
@@ -69,20 +90,40 @@ This exercise accompanies the lessons/labs in Environmental Data Analytics on co
 ```{r basics 3}
 #10. Create a function using if...else
 
+expanded_evaluation_10 <- function(x){ # Create an if-else statement to evaluate if 
+  #an input is greater than 50
+  if (x > 50) {
+    print ("Pass")}
+  else {
+    print ("Fail")}
+}
+
 #11. Create a function using ifelse()
+
+ifelse_evaluation_11 <- function(x) { # Create and ifelse statement to evaluate 
+  #if an input is greater than 50
+  ifelse(x > 50, "Pass", "Fail")
+}
 
 #12a. Run the first function with the value 52.5
 
+expanded_evaluation_10(52.5) # Test the expanded if-else statement with 52.5
+
 #12b. Run the second function with the value 52.5
+
+ifelse_evaluation_11(52.5) # Test the ifelse() function with 52.5
 
 #13a. Run the first function with the vector of test scores
 
+test_vector <- seq(10,90,5) ; test_vector # Create a test sequence to be used in 13a and 13b
+# expanded_evaluation_10(test_vector) # Run the function with the test vector
+
 #13b. Run the second function with the vector of test scores
+ifelse_evaluation_11(test_vector) # Run the function with the test vector
 ```
 
 14. QUESTION: Which option of `if`...`else` vs. `ifelse` worked? Why? (Hint: search the web for "R vectorization")
 
-> Answer:
-
+> Answer: The ifelse() function worked. This is because the function is designed to read through the vector (hence it is termed "vectorized"). A standard if-else statement is only designed to read a single value.
 
 **NOTE** Before knitting, you'll need to comment out the call to the function in Q13 that does not work. (A document can't knit if the code it contains causes an error!)
