@@ -7,9 +7,12 @@ This dataset was prepared for Environmental Data Analytics (ENV 872L) at Duke Un
 The dataset contains streamflow data from the USGS streamflow gage site 02085000 (Eno River at Hillsborough, NC). 
 
 ## Database Information
-Data were collected from the U.S. Geological Survey's Water Data website. More information can be found here: https://waterdata.usgs.gov/nwis
+Data were collected from the U.S. Geological Survey's Water Data website. 
+More information can be found here: https://waterdata.usgs.gov/nwis
 
-Data were collected using the Current Conditions tool on the USGS Water Data website (https://waterdata.usgs.gov/nwis).
+Data were collected using the Current Conditions tool on the USGS Water 
+Data website (https://waterdata.usgs.gov/nwis).
+
 From the Current Conditions homepage, the following selections were made: 
 * Daily Stage and Streamflow (Predefined displays drop-down menu)
 * Eno River (station name)
