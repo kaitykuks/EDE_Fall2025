@@ -119,6 +119,7 @@ Remember formatting of dates in R:
 # An example is provided to get you started.
 # (code must be uncommented)
 today <- Sys.Date()
+today
 format(today, format = "%B")
 format(today, format = "%Y-%d-%B")
 format(today, format = "%B/%d/%y")
