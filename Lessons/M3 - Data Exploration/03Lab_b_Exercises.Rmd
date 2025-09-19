@@ -3,6 +3,8 @@ title: "Lab 3a - Exercises"
 author: "Environmental Data Analytics | John Fay and Luana Lima "
 date: "Fall 2025"
 output: pdf_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## Set up the session
@@ -18,10 +20,11 @@ library(tidyverse); library(lubridate); library(here)
 
 #Check workspace
 here()
+pm25_file <- here("Data", "Raw", "EPAair_PM25_NC2019_raw.csv")
 
 #Import data
 pm25 <- read.csv(
-  #----ENTER THE FILENAME HERE, USING THE here() PACKAGE----
+  pm25_file,
   stringsAsFactors = TRUE,
   colClasses = c("Site.ID"='factor')
 )
@@ -34,20 +37,28 @@ pm25$Date <- mdy(pm25$Date)
 
 ## Explore properties of the dataframe
 -   How many different sites are included in the data set?
--   What is the mean daily PM2.5 concentration?
+-   What is the mean daily PM 2.5 concentration?
 -   In what units of are PM 2.5 concentrations reported?
 
 ```{r Explore the data}
-# Compute the number of different sites
+# Look at column headers
+colnames(pm25)
 
+# Compute the number of different sites
+length(summary(pm25$Site.ID)) # Summarize the count in each site then find the length of the vector
+unique(pm25$Site.ID) # Yields the different sites and how many levels there are
 
 # Compute the mean and median PM 2.5 concentration
-
+mean(pm25$Daily.Mean.PM2.5.Concentration)
+median(pm25$Daily.Mean.PM2.5.Concentration)
 
 # What are the units
-
+unique(pm25$UNITS) # Check how many unique units there are
+print(pm25$UNITS[1]) # All the units are the same, so just print the first entry 
 
 # What is the date range (min and max dates)
+min(pm25$Date) # Min date
+max(pm25$Date) # Max date
 
 ```
 
@@ -60,15 +71,20 @@ pm25$Date <- mdy(pm25$Date)
   *   There are multiple ways to visualize this...
 
 ```{r Visualize the data}
-#Number of samples using each different source 
+library(ggplot2)
 
+#Number of samples using each different source 
+ggplot(pm25) +
+  geom_bar(aes(x = Source))
 
 #Distribution of daily mean concentration values
-
+ggplot(pm25) +
+  geom_histogram(aes(Daily.Mean.PM2.5.Concentration))
 
 #Distribution of daily mean concentration, by source
-
-
+ggplot(pm25) +
+  geom_freqpoly(aes(x = Daily.Mean.PM2.5.Concentration, color = Source)) +
+  scale_color_manual(values = c("grey50", "blue"))
 
 ```
 
