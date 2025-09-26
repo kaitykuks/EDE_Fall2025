@@ -207,39 +207,20 @@ EPAair_summaries <-
 # PM2.5 are in separate columns
 
 # Create the pivoted dataset
-EPAair_O3_PM25_NC1819_pivoted <- 
+EPAair_O3_PM25_NC1819_Processed <- 
   EPAair_summaries %>% 
   pivot_wider(names_from = "AQS_PARAMETER_DESC", # what you want the categories to be
-              values_from = "meanAQI", # the values you want to sort into categories
-              id_cols = c("Date", "Site.Name")) # select the columns to base sorting on  
-
-
-
-
-
-
-
-# Join the datasets ????????
-EPAair_O3_PM25_NC1819_Processed <- 
-  full_join(EPAair_O3_PM25_NC1819_pivoted, EPAair_summaries)
-
-
-
-
-
-
-
-
-
+              values_from = "meanAQI") # the values you want to sort into categories
+    
 #10: Get dimensions of the new dataset
 
-dim(EPAair_O3_PM25_NC1819_Processed)
+dim(EPAair_O3_PM25_NC1819_Processed) # Reveals that the values from AQQS_PARAMETER_DESC and
+                                     # meanAQI were converted to two new columns
 
 #11: Save the dataset by creating a .csv in the Processed Data folder
 
-# write.csv(EPAair_O3_PM25_NC1819_Processed, 
-#           file = here("Data/Processed/EPAair_O3_PM25_NC1819_Processed.csv") )
-
+write.csv(EPAair_O3_PM25_NC1819_Processed, 
+         file = here("Data/Processed/EPAair_O3_PM25_NC1819_Processed.csv") )
 
 ```
 
