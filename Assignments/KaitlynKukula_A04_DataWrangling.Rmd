@@ -203,6 +203,9 @@ EPAair_summaries <-
   mutate(Year = year(Date)) %>%  # Create a column for the year
   select(Site.Name:Date, Month, Year, AQS_PARAMETER_DESC:meanlong) # Rearrange order of columns
 
+# Get dimensions of the summaries dataframe with the added month and year
+dim(EPAair_summaries)
+
 #9: Spread the dataset using pivot_wider() such that AQI values for ozone and
 # PM2.5 are in separate columns
 
@@ -212,10 +215,11 @@ EPAair_O3_PM25_NC1819_Processed <-
   pivot_wider(names_from = "AQS_PARAMETER_DESC", # what you want the categories to be
               values_from = "meanAQI") # the values you want to sort into categories
     
-#10: Get dimensions of the new dataset
+#10: Get dimensions of the new dataset (Reveals that the values from AQQS_PARAMETER_DESC and
+# meanAQI were converted to two new columns
 
-dim(EPAair_O3_PM25_NC1819_Processed) # Reveals that the values from AQQS_PARAMETER_DESC and
-                                     # meanAQI were converted to two new columns
+dim(EPAair_O3_PM25_NC1819_Processed)
+colnames(EPAair_O3_PM25_NC1819_Processed)
 
 #11: Save the dataset by creating a .csv in the Processed Data folder
 
