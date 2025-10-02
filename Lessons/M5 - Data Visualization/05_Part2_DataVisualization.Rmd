@@ -233,8 +233,10 @@ The following graph displays the counts of specific endpoints measured in neonic
 4. Change the color and/or border on the bars. Should you have a consistent color across all bars, or a different color for each bar?
 ```{r}
 Neonics <- read.csv("./Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv")
-ggplot(Neonics, aes(x = reorder(Endpoint, Reference.Number, FUN = length))) +
-  geom_bar() +
+ggplot(Neonics) +
+  scale_x_discrete(limits = rev(levels(Neonics$Endpoint))) +
+
+  geom_bar(aes(x = reorder(Endpoint, Reference.Number, FUN = length))) +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(x = "Endpoint")
