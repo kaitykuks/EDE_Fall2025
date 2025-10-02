@@ -169,15 +169,15 @@ NvsP <-
   geom_point() 
 print(NvsP)
 
-# let's first make the plot look better.
+# let's first make the plot look better
 # change your axis labels to reflect TN and TP in micrograms per liter.
 # change your legend labels
 NvsP2 <-
   ggplot(PeterPaul.chem.nutrients, aes(x = tp_ug, y = tn_ug, color = depth, shape = lakename)) +
   geom_point(alpha = 0.7, size = 2.5) +
-  #labs() + # change your legend labels here
+  labs(x = "TP [ug/L]", y = "TN [ug/L0]") + # change your legend labels here
   scale_shape_manual(values = c(15, 17)) +
-  #scale_color_distiller(palette = "Blues", direction = 1) + # use scale_color_brewer for discrete variables
+  scale_color_distiller(palette = "Blues", direction = 1) + # use scale_color_brewer for discrete variables
   scale_color_viridis(option = "magma", direction = -1) +
   theme(legend.position = "right", 
         legend.text = element_text(size = 12), legend.title = element_text(size = 12))
@@ -233,10 +233,14 @@ The following graph displays the counts of specific endpoints measured in neonic
 4. Change the color and/or border on the bars. Should you have a consistent color across all bars, or a different color for each bar?
 ```{r}
 Neonics <- read.csv("./Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv")
-ggplot(Neonics) +
-  geom_bar(aes(x = Endpoint))
-
-
-
+ggplot(Neonics, aes(x = reorder(Endpoint, Reference.Number, FUN = length))) +
+  geom_bar() +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "Endpoint")
 
 ```
+
+
+
+

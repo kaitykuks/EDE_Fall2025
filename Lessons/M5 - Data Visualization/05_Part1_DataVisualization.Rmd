@@ -85,9 +85,8 @@ O3plot <- ggplot(EPAair) +
   geom_point(aes(x = Date, y = Ozone))
 print(O3plot)
 
-# Fix this code
 O3plot2 <- ggplot(EPAair) +
-  geom_point(aes(x = Date, y = Ozone, color = "blue"))
+  geom_point(aes(x = Date, y = Ozone), color = "blue")
 print(O3plot2)
 
 # Add additional variables
@@ -206,7 +205,8 @@ print(Nutrientplot7)
 # Ridgeline plot
 Nutrientplot6 <-
   ggplot(PeterPaul.chem.nutrients.gathered, aes(y = nutrient, x = concentration)) +
-  geom_density_ridges(aes(fill = lakename), alpha = 0.5) #
+  geom_density_ridges(aes(fill = lakename), alpha = 0.5) +
+  xlim(0, 1000)#
 print(Nutrientplot6)
 
 
