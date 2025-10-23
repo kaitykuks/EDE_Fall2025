@@ -13,6 +13,83 @@ editor_options:
 2. Answer questions on M6 - GLMs
 3. Practice more application GLM to real datasets
 
+## Overview of the types of generalized linear models
+
+Key terminology
+- Response: variable we are trying to predict (Y, dependent or target)
+- Independent variables: variable used to predict the response (X, predictor, feature)
+- Record: vector of predictors and outcome value from an observation
+- Intercept: predicted value when X = 0
+- Regression coefficient: slope of the regression line
+- Fitted values: estimates of Y obtained from the regression line (aka prediction)
+- Residuals: difference between observed and fitted values (errors)
+- Least squares: method used to find line that minimizes squared sum of residuals
+
+>> Simple linear regression: one predictor and one response
+
+General workflow
+1. View data with a scatterplot of Y vs X
+  - Can you see a trend, do you need to transform an axis (eg log transform)
+2. Create a linear model
+  - Find the best fit line (ordinary least sq method)
+  - Assume residuals are normal, sensitive to outliers
+  - Assumes causation (be very careful with this!)
+3. Examine the model summary and plots
+  - Summary provides information on intercept and slope, p values for coefficients,
+    residual standard error, multiple R-squared (how the variability in variable Y is explained
+    by the variability of X -- want this value to be 1), F-statistic
+  - Residuals vs Fitted: compares variables that are fitted by the model and the values that
+    were actually observed, do not want to see patterns which indicates bias
+  - Normal Q-Q: shows that values follow a normal distribution, deviations at the beginning and 
+    end are to be expected
+  - Scale-Location: fitted values are compared to standardized residuals (again, you do not want
+    to see a pattern)
+  - Residuals vs Leverage: leverage is the impact that each datapoint has on the final model product,
+    if the leverage is small the datapoint does not have a large impact on the model, high residual 
+    and high leverage together indicates that a value should be removed from the analysis
+
+
+>> Multiple linear regression: many independent variables to predict response
+
+- Can find variables with correlation matrices
+- Issues with overfitting: you may explain the observation more than once if you are using variables
+  that already have a correlation
+- Akaike's Information Criterion (AIC): this is used to determine which variables can be removed from
+  the model that can imporove the model
+
+General Workflow
+1. Generate linear model 
+2.
+3. 
+
+>> ANOVA: predicting Y from categorical variables
+
+- Categorical variables but be categorized as factors (variable used to group data that is suspected
+  to explain variability in another response variable)!
+- Levels:
+- ??
+- Two way ANOVA requires you to understand interactive effects
+
+Assumptions
+- Populations are normally distributed
+- 
+- 
+
+Running in R
+- aov(data = "", Y ~ X)
+- lm(formula = Y ~ X, data = "")
+- Post Hoc test: if means are found not to be the same, which are different?
+  - Turkey HSD: compares all pairwise combinations (same letters = same mean)
+  - Visualization with box plots to view means
+
+>> T-test: comparing Y to a set equality
+
+- Are ozone levels below the threshold for "poor" AQI index?
+- Equality needs to be in the null hypothesis, and alternative covers the rest of the space
+- Testing for the normality with Shapiro-Wilkes, ____, _____
+- p value tells you to reject null hypothesis if <0.05
+- Two-sample T-test is used to compare if two variables have the same mean
+  - Same as two way ANOVA
 
 ## Set up
 ```{r, message = FALSE}
@@ -49,6 +126,35 @@ Create three plots, each with appropriately formatted axes and legends. Choose a
 ```{r}
 #Exercise 1:
 
+EPAair$Year <- as.factor(EPAair$Year)
+
+ggplot(EPAair) +
+  geom_density(aes(Ozone, fill = Year), alpha = 0.5) + # Can also use as.Factor()
+  labs(x = "Ozone AQI Value",
+       y = "Density")
+
+ggplot(EPAair, aes(Year, Ozone)) +
+  geom_boxplot() +
+  stat_summary(geom = "text", # Going to be adding text
+               fun = max, # Add the value at the max (top)
+               vjust = -1,
+               size = 4,
+               label = c("b", "a")) +
+  labs(x = "",
+       y = "Ozone AQI Value") +
+  ylim(0, 150)
+
+
+ggplot(EPAair, aes(Year, Ozone)) +
+  geom_violin(draw_quantiles = 0.5) +
+  stat_summary(geom = "text", # Going to be adding text
+               fun = max, # Add the value at the max (top)
+               vjust = -1,
+               size = 4,
+               label = c("b", "a")) +
+  labs(x = "",
+       y = "Ozone AQI Value") +
+  ylim(0, 150)
 
 ```
 
@@ -62,11 +168,21 @@ For the NTL-LTER dataset, can we predict PM2.5 from Ozone?
 
 #Exercise 2: Run a linear regression PM2.5 by Ozone. Find the p-value and R-squared value. 
 
-
+air_quality <- lm(data = EPAair, PM2.5 ~ Ozone)
+summary(air_quality)
+  # Resulting p-value: 2.2e-16
+  # Resulting R-squared value: 0.1316 (multiple) and 0.1314 (adjusted)
 
 #Exercise 3: Build a scatterplot. Add a line and standard error for the linear regression. Add the regression equation to the plot
 
-
+ggplot(EPAair, aes(Ozone, PM2.5)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  annotate(geom = "text",
+           x = 50, y = 90,
+           size = 4,
+           label = "Ozone = 0.38*PM2.5 + 15.64")+
+  ylim(0,100)
 
 ```
 
@@ -78,9 +194,22 @@ What other variables can we add to improve model?
 ```{r}
 
 #Exercise 4: Build correlation plots and identify more possible explanatory variables to add to the regression.
+library(corrplot)
+library(dplyr)
 
+EPAair$Month <- as.numeric(EPAair$Month)
+EPAair$Year <- as.numeric(EPAair$Year)
+EPAair$Ozone <- as.numeric(EPAair$Ozone)
 
+Air_corr_data <- 
+  EPAair %>%
+  select(c(mean_Lat:Ozone)) %>%
+  na.omit()
 
+Air_corr <- cor(Air_corr_data)
+corrplot(Air_corr, method = "ellipse")
+corrplot.mixed(Air_corr, upper = "ellipse")
+  # Results: next best option after Ozone is mean_Lat
 
 #Exercise 5: Choose a model by AIC in a Stepwise Algorithm. Do the results from AIC match the variables you selected on Exercise 4?
 
