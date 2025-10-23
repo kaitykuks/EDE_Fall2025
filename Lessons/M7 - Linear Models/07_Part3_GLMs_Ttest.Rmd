@@ -28,7 +28,7 @@ Continuous response, one categorical explanatory variable with two categories (o
 
 Two hypotheses are formed – the null hypothesis and the alternative hypothesis.
 The null hypothesis and the alternative hypothesis combine to cover all possible values for the population mean.
-The null hypothesis must have the equality.
+The null hypothesis must have the equality (mean of the group is equal to a specific value).
 The null and alternative hypotheses are always stated in terms of the population mean (mu).
 
 ### One-sample t-test
@@ -59,7 +59,7 @@ EPAair$Date <- as.Date(EPAair$Date, format = "%Y-%m-%d")
 > Exercise 1: State the hypotheses for testing mean of AQI index.
 
 > Answer: 
-H0: mu >= 50
+H0: mu >= 50. Equality is ALWAYS on the null hypothesis
 Ha: mu < 50
 
 ```{r}
@@ -77,13 +77,13 @@ Ozone.plot <- ggplot(EPAair, aes(x = Ozone)) +
 print(Ozone.plot)
 
 # Format as a GLM
-O3.onesample2 <- lm(Ozone ~ 1, EPAair)
+O3.onesample2 <- lm(Ozone ~ 1, EPAair) # ~1 returns the intercept coefficient, this is what you compare the mean to.
 O3.onesample2
 ```
 
 Write a sentence or two about the results of this test. Include both the results of the test and an interpretation that puts the findings in context of the research question.
 
-> 
+> The resulting intercept is 40.88, which is not greater than or equal to 50. This means that we need to reject the null hypothesis that air quality is above the threshold for poor AQI index.
 
 ### Two-sample t-test
 
@@ -102,10 +102,15 @@ ggplot(EPAair, aes(x = Ozone, color = as.factor(Year))) +
 #EPAair$Year will be our categorical variable with two levels (2018 and 2019)
 O3.twosample <- t.test(EPAair$Ozone ~ EPAair$Year)
 O3.twosample
+  # Results:
+    #p value < 0.05 so reject null hypothesis (true difference in means between 2018 and 2019 are not == 0)
 
 # Format as a GLM
-O3.twosample2 <- lm(EPAair$Ozone ~ EPAair$Year)
+# Ask is year a predictor of ozone levels?
+O3.twosample2 <- lm(EPAair$Ozone ~ EPAair$Year) #Can also use lm(Ozone ~ Year, EPAair)
 summary(O3.twosample2)
+   # Results
+    # p vale < 0.05 so the coefficient 0.8452 is different from 0 so reject null hypothesis, so year is a predictor of ozone
 
 ```
 
