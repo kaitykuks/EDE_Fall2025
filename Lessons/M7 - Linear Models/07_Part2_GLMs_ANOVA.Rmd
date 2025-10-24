@@ -93,7 +93,7 @@ summary(Litter.Totals.anova)
 #results: reject null hypothesis i.e. difference between a pair of group means its statistically significant
 # Sum sq is the average??? derivation from the mean
 # F-value is the mean sq plot ID / mean sq residuals
-# Doesnt tell which are different or the same
+# Doesn't tell which are different or the same
 
 # Format ANOVA as lm (more dependent on detail)
 Litter.Totals.anova2 <- lm(data = Litter.Totals, dryMass ~ plotID)
