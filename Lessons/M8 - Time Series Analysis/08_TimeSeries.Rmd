@@ -13,6 +13,90 @@ editor_options:
 2. Explore the components of times series: trend, seasonal, random
 3. Learn how to perform stationarity test
 
+## Notes
+
+**Core Questions**
+
+1. Has there been an increasing or decreasing trend in the response variable over time?
+2. Can we forecast conditions in the future?
+
+**Intro to TSA**
+
+Time series are a set of observations on a variable collected over time Y = f(t)
+- Discrete and continuous (stock prices, interest rates, retail sales, electric power consumption)
+- Time frame: short, medium, and long term predictions
+- Trends/: general tendency to grow or decline
+- Cycle: up and down movement that repeat over a long period of time
+- Seasonal Variation: up and down repetitive movement occurring periodically (short duration)
+- Random Variations: erratic movements that are not predictable because they don't follow a pattern
+
+Stationary data: TS variable with no sig. upward or downward trend
+Nonstationsary: TS variable exhibiting a sig. upward or downward trend over time
+Seasonal: TS variable exhibiting a repeating pattern at regular intervals over time
+
+Covariance and correlation measure joint variability of two variables
+- Measure of linear dependence between two variables
+
+**Autocorrelation Factor (ACF)**
+
+Correlation between variables from the same time series 
+
+rho_t,t-h = Corr(Y_t, Y_t-h) 
+
+Gives information about the dependence structure of a time series
+If t-1 is significant, what happens one step before t is relevant to t
+Can also be used to identify seasonality
+
+**Partial Autocorrelation Factor (PACF)**
+
+Dependency structure among the intermediate variables play an important role on the value of the ACF
+Attempts to remove the influence of intermediate variables so you only have a direct correlation between Y_t and Y_t-h
+
+**Trend Component**
+
+Typically a long term tendency (increase or decrease)
+Trends can be linear or otherwise, linear is typically easier to deal with
+
+Linear: Y_i = beta_0 + beta_1*t_i + e_i
+  Beta_1 = slope
+  Beta_0= intercept
+  e_i = error term
+  
+**Seasonal Component**
+
+Short term, regular wavelength pattern typically observed within one year, often monthly or quarterly
+Estimate trends with Seasonal Means Model (stepwise-like model)
+
+**Types of Trends**
+
+Deterministic: detrending is accomplished by running a regression and obtaining the series of residuals
+Stochastic: trend that has different behaviors over time, trend is removed by differencing the series
+
+**Stationary Tests and Assessment**
+
+the probability laws that govern the behavior of the process do not change over time
+- No matter where you are in time, the distribution of points will be exactly the same as the distribution at another point (eg white noise series)
+
+Mann-Kandall Test: commonly employed to detect deterministic trends in a series of env data, climate data, or hydrologic data
+- Cannot be applied to seasonal data
+- Null H: Yt is stationary
+- Alternative H: Yt follows a trend
+- Result "S" will increase as the number of observations increase (to maintain statistical significance)
+- MannKendall(vector of data)
+- SeasonalMannKendall(vector of data)
+
+Spearman's correlation coefficient: statistical measure of the strength of a monotonic relatinship
+- Relationship does not need to be linear (Pearson's does require this!)
+- To verify a monotonic trend, you hsould calculate this
+  - Correlation close to 0 means there is no trend
+  - cor() or cor.test()
+  
+Dick-Fuller Test: applied to verify stochastic trends
+- Only includes one leg (t-1), so if you need more you need a more general model (ADF test)
+- Null H: phi = 1 (contains a unit root)
+- Alt H: phi < 1 (is stationary)
+- adf.test()
+
 ## Set up
 
 Today we will work with two datasets. The USGS dataset on discharge at the Eno River and a new dataset we haven't explored yet on wind speed. The data file is available at "./Data/Raw/Wind_Speed_PortArthurTX.csv". It contains average wind speed in monthly time steps (elevation = 5 meters). The data is available from NOAA National Centers for Environmental Information (NCEI) [here][https://www.ncdc.noaa.gov/cdo-web/datasets#GSOM].
@@ -118,7 +202,7 @@ Note: time series objects must be equispaced. In our case, we have daily data wi
 EnoDischarge.late_ts <- ts(EnoDischarge.late$discharge.mean, start = c(1985,1), frequency = 365)
 ```
 
-The `stl` function decomposes the time series object into its component parts. We must specify that the window for seasonal extraction is either "periodic" or a specific number of at least 7. The decomposition proceeds through a loess (locally estimated scatterplot smoothing) function.
+The `stl` function decomposes the time series object into its component parts. We must specify that the window for seasonal extraction is either "periodic" or a specific number of at least 7. The decomposition proceeds through a loess (locally estimated scatterplot smoothing) function. Only run this with one variable! If you have more than one variable, you need to run the decomposition for each one individually.
 
 ```{r}
 ?stl
