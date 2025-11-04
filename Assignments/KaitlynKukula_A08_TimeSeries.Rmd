@@ -27,14 +27,51 @@ This exercise accompanies the lessons in Environmental Data Analytics on general
 * Set your ggplot theme
 
 ```{r}
+# Check working directory
+getwd()
 
+# Load packages
+library(tidyverse)
+library(lubridate)
+library(zoo)
+library(trend)
+library(ggplot2)
+
+# Set ggplot theme
+kak_theme <- theme_classic() +
+  theme(plot.title = element_text(size = 11, hjust = 0.5, face = "bold"), #Adjust title
+        axis.text.x = element_text(size = 9), # Adjust x-axis values
+        axis.text.y = element_text(size = 9), # Adjust y-axis values
+        axis.title.x = element_text(size = 10.5, face = "bold"), # Adjust x-axis title
+        axis.title.y = element_text(size = 10.5, face = "bold"), # Adjust y-axis title
+        legend.position = "right", # Define legend position
+        legend.text = element_text(size = 9), # Define legend entry sizes
+        legend.title = element_text(size = 9)) # Define legend name sizes
+set_theme(kak_theme)
 ```
-
 
 2. Import the ten datasets from the Ozone_TimeSeries folder in the Raw data folder. These contain ozone concentrations at Garinger High School in North Carolina from 2010-2019 (the EPA air database only allows downloads for one year at a time). Import these either individually or in bulk and then combine them into a single dataframe named `GaringerOzone` of 3589 observation and 20 variables. 
 
 ```{r, message = FALSE}
-#1
+#1: Loading data
+
+# Import datasets as data frames
+garinger_ozone10 <- data.frame(read.csv(file = "Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2010_raw.csv"))
+garinger_ozone11 <- data.frame(read.csv(file = "Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2011_raw.csv"))
+garinger_ozone12 <- data.frame(read.csv(file = "Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2012_raw.csv"))
+garinger_ozone13 <- data.frame(read.csv(file = "Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2013_raw.csv"))
+garinger_ozone14 <- data.frame(read.csv(file = "Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2014_raw.csv"))
+garinger_ozone15 <- data.frame(read.csv(file = "Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2015_raw.csv"))
+garinger_ozone16 <- data.frame(read.csv(file = "Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2016_raw.csv"))
+garinger_ozone17 <- data.frame(read.csv(file = "Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2017_raw.csv"))
+garinger_ozone18 <- data.frame(read.csv(file = "Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2018_raw.csv"))
+garinger_ozone19 <- data.frame(read.csv(file = "Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2019_raw.csv"))
+
+# Combing into single dataframe
+garinger_ozone <- rbind(garinger_ozone10, garinger_ozone11, garinger_ozone12,
+                        garinger_ozone13,garinger_ozone14, garinger_ozone15,
+                        garinger_ozone16, garinger_ozone17,garinger_ozone18,
+                        garinger_ozone19)
 
 ```
 
@@ -49,14 +86,19 @@ This exercise accompanies the lessons in Environmental Data Analytics on general
 6. Use a `left_join` to combine the data frames. Specify the correct order of data frames within this function so that the final dimensions are 3652 rows and 3 columns. Call your combined data frame GaringerOzone. 
 
 ```{r}
-# 3
+#3: Set date column as a date
+garinger_ozone$Date <- mdy(garinger_ozone$Date)
 
-# 4
+#4: Select Date, Ozone Concentration, and AQI
+garinger_ozone_select <- garinger_ozone %>%
+  select(Date, Daily.Max.8.hour.Ozone.Concentration, DAILY_AQI_VALUE)
 
-# 5
+#5: New dataframe that covers 2010-01-01 to 2019-12-31
+days <- as.data.frame(seq(as.Date('2010-01-01'), as.Date('2019-12-31'), by = 'day'))
+colnames(days) <- "Date"
 
-# 6
-
+#6: Join to combine the dates and ozone concentration dataframes
+garinger_ozone <- left_join(days, garinger_ozone_select)
 
 ```
 
@@ -65,11 +107,18 @@ This exercise accompanies the lessons in Environmental Data Analytics on general
 7. Create a line plot depicting ozone concentrations over time. In this case, we will plot actual concentrations in ppm, not AQI values. Format your axes accordingly. Add a smoothed line showing any linear trend of your data. Does your plot suggest a trend in ozone concentration over time?
 
 ```{r}
-#7
+#7: line plot of ozone over time
 
+ozone_plot <- ggplot(data = garinger_ozone,
+                     aes(x = Date, y = Daily.Max.8.hour.Ozone.Concentration)) +
+  geom_line() +
+  geom_smooth(method = 'lm') +
+  labs(x = 'Date',
+       y = "Ozone Concentration [ppm]")
+ozone_plot
 ```
 
->Answer:
+>Answer: Yes, there appears to be a decreaseing linear trend and seasonality.
 
 ## Time Series Analysis
 
@@ -78,62 +127,114 @@ Study question: Have ozone concentrations changed over the 2010s at this station
 8. Use a linear interpolation to fill in missing daily data for ozone concentration. Why didn't we use a piecewise constant or spline interpolation?
 
 ```{r}
-#8
+#8 
+summary(garinger_ozone) # Summary shows that there are 63 missing points
 
+# In real applications you will simply replace NAs
+garinger_ozone <- 
+  garinger_ozone %>% 
+  mutate( Daily.Max.8.hour.Ozone.Concentration = zoo::na.approx(Daily.Max.8.hour.Ozone.Concentration)) %>%
+  mutate( DAILY_AQI_VALUE = zoo::na.approx(DAILY_AQI_VALUE))
+summary(garinger_ozone) # Summary shows there are no missing points
 ```
 
-> Answer: 
+> Answer: Piecewise constant assumes that the data are equal to the measurement made nearest to the date, and because there is an increasing and decreasing trend here, applying this interpolation may miss an influction or change in the trend. A spline implements a quadratic function, so it would not be appropriate for the data here that exhibits a more linear trend.
 
-
-9. Create a new data frame called `GaringerOzone.monthly` that contains aggregated data: mean ozone concentrations for each month. In your pipe, you will need to first add columns for year and month to form the groupings. In a separate line of code, create a new Date column with each month-year combination being set as the first day of the month (this is for graphing purposes only)
+9. Create a new data frame called `GaringerOzone_monthly` that contains aggregated data: mean ozone concentrations for each month. In your pipe, you will need to first add columns for year and month to form the groupings. In a separate line of code, create a new Date column with each month-year combination being set as the first day of the month (this is for graphing purposes only)
 
 ```{r}
-#9
+#9: Aggregated data
 
+# Generate mean ozone concentration per month for each year 
+garinger_ozone_monthly <- garinger_ozone %>%
+  mutate(Month = month(Date)) %>%
+  mutate(Year = year(Date)) %>%
+  group_by(Year, Month) %>%
+  summarise(meanOzone = mean(Daily.Max.8.hour.Ozone.Concentration))
+
+# Add a date column and rearrange the order of the columns
+garinger_ozone_monthly <- garinger_ozone_monthly %>%
+  mutate( Date = my(paste0(Month,"-",Year))) %>%
+  select(Date, Month, Year, meanOzone)
 ```
 
 
 10. Generate two time series objects. Name the first `GaringerOzone.daily.ts` and base it on the dataframe of daily observations. Name the second `GaringerOzone.monthly.ts` and base it on the monthly average ozone values. Be sure that each specifies the correct start and end dates and the frequency of the time series.
 
 ```{r}
-#10
+#10: Generating time series objects
 
+# Time series object for daily ozone observations from 2010-01-01 to 2019-12-31
+garinger_ozone_daily_ts <- ts(data = garinger_ozone$Daily.Max.8.hour.Ozone.Concentration,
+                              start = c(day(first(garinger_ozone$Date)),
+                                        month(first(garinger_ozone$Date)),
+                                        year(first(garinger_ozone$Date))),
+                              end = c(day(last(garinger_ozone$Date)),
+                                      month(last(garinger_ozone$Date)),
+                                      year(last(garinger_ozone$Date))),
+                              frequency = 365)
+
+# Time series object for monthly mean ozone observations from 2010-01 to 2019-12
+garinger_ozone_monthly_ts <- ts(data = garinger_ozone_monthly$meanOzone,
+                              start = c(month(first(garinger_ozone_monthly$Date)),
+                                        year(first(garinger_ozone_monthly$Date))),
+                              end = c(month(last(garinger_ozone_monthly$Date)),
+                                      year(last(garinger_ozone_monthly$Date))),
+                              frequency = 12)
 ```
-
 
 11. Decompose the daily and the monthly time series objects and plot the components using the `plot()` function.
 
 ```{r}
-#11
+#11: Decomposing the time series
 
+# Daily observations
+garinger_ozone_daily_decomp <- stl(garinger_ozone_daily_ts, s.window = 'periodic')
+plot(garinger_ozone_daily_decomp)
+
+# Monthly observations
+garinger_ozone_monthly_decomp <- stl(garinger_ozone_monthly_ts, s.window = 'periodic')
+plot(garinger_ozone_monthly_decomp)
 
 ```
-
 
 12. Run a monotonic trend analysis for the monthly Ozone series. In this case the seasonal Mann-Kendall is most appropriate; why is this?
 
 ```{r}
-#12
+#12: SMK test
 
+# Monthly observations
 
+garinger_ozone_monthly_smk <- trend::smk.test(garinger_ozone_monthly_ts)
+garinger_ozone_monthly_smk
+summary(garinger_ozone_monthly_smk)
 
 ```
 
-> Answer: 
+> Answer: Based on the decomposition plot analysis, this is a clear seasonal trend in this data. Thus, the seasonal Mann-Kendall test is the only appropriate test because it is effective and capable of handling seasonal data.
 
 13. Create a plot depicting mean monthly ozone concentrations over time, with both a geom_point and a geom_line layer. Edit your axis labels accordingly.
 
 ```{r}
-# 13
+#13: Mean monthly ozone plot
 
-
-
+mean_ozone_monthly_plot <- ggplot(garinger_ozone_monthly,
+                                  aes(x = Date,
+                                      y = meanOzone)) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Date",
+       y = "Mean Ozone",
+       title = "Mean Ozone Concentration at Garinger High School Station by Month") +
+  scale_x_date(date_labels = "%Y",
+               date_breaks = "1 year")
+mean_ozone_monthly_plot
 
 ```
 
 14. To accompany your graph, summarize your results in context of the research question. Include output from the statistical test in parentheses at the end of your sentence. Feel free to use multiple sentences in your interpretation.
 
-> Answer: 
+> Answer: Based on the decomposed graph, at this station, ozone concentrations appear to have seasonal fluctuations that peak in the middle of the year (graph). However, the statistical analysis suggest that there is no monotonic trend observed in the data (p-value = 0.9192).
 
 15. Subtract the seasonal component from the `GaringerOzone.monthly.ts`. Hint: Look at how we extracted the series components for the EnoDischarge on the lesson Rmd file.
 
@@ -142,13 +243,17 @@ Study question: Have ozone concentrations changed over the 2010s at this station
 ```{r}
 #15
 
+# Create a dataframe of the components
+garinger_ozone_components <- as.data.frame(garinger_ozone_monthly_decomp$time.series[,1:3])
 
+# Subtract the seasonal component from the timeseries
+garinger_ozone_noseason <- garinger_ozone_monthly_ts - garinger_ozone_components$seasonal
 
 #16
 
-
-
-
+garinger_ozone_noseason_mk <- trend::mk.test(garinger_ozone_noseason)
+garinger_ozone_noseason_mk
+summary(garinger_ozone_noseason_mk)
 ```
 
-> Answer: 
+> Answer: The Mann-Kendall test when seasonality is removed still suggests that there is no monotonic trend present in the dataset (p-value = 0.7886). Overall, this study suggests that although there are seasonal trends in ozone concentrations at this site, concentrations are not significantly changing over the study period.
