@@ -166,20 +166,20 @@ garinger_ozone_monthly <- garinger_ozone_monthly %>%
 
 # Time series object for daily ozone observations from 2010-01-01 to 2019-12-31
 garinger_ozone_daily_ts <- ts(data = garinger_ozone$Daily.Max.8.hour.Ozone.Concentration,
-                              start = c(day(first(garinger_ozone$Date)),
+                              start = c(year(first(garinger_ozone$Date)),
                                         month(first(garinger_ozone$Date)),
-                                        year(first(garinger_ozone$Date))),
-                              end = c(day(last(garinger_ozone$Date)),
+                                        day(first(garinger_ozone$Date))),
+                              end = c(year(last(garinger_ozone$Date)),
                                       month(last(garinger_ozone$Date)),
-                                      year(last(garinger_ozone$Date))),
+                                      day(last(garinger_ozone$Date))),
                               frequency = 365)
 
 # Time series object for monthly mean ozone observations from 2010-01 to 2019-12
 garinger_ozone_monthly_ts <- ts(data = garinger_ozone_monthly$meanOzone,
-                              start = c(month(first(garinger_ozone_monthly$Date)),
-                                        year(first(garinger_ozone_monthly$Date))),
-                              end = c(month(last(garinger_ozone_monthly$Date)),
-                                      year(last(garinger_ozone_monthly$Date))),
+                              start = c(year(first(garinger_ozone_monthly$Date)),
+                                        month(first(garinger_ozone_monthly$Date))),
+                              end = c(year(last(garinger_ozone_monthly$Date)),
+                                      month(last(garinger_ozone_monthly$Date))),
                               frequency = 12)
 ```
 
@@ -229,12 +229,11 @@ mean_ozone_monthly_plot <- ggplot(garinger_ozone_monthly,
   scale_x_date(date_labels = "%Y",
                date_breaks = "1 year")
 mean_ozone_monthly_plot
-
 ```
 
 14. To accompany your graph, summarize your results in context of the research question. Include output from the statistical test in parentheses at the end of your sentence. Feel free to use multiple sentences in your interpretation.
 
-> Answer: Based on the decomposed graph, at this station, ozone concentrations appear to have seasonal fluctuations that peak in the middle of the year (graph). However, the statistical analysis suggest that there is no monotonic trend observed in the data (p-value = 0.9192).
+> Answer: Based on the decomposed graph, at this station, ozone concentrations appear to have seasonal fluctuations that peak in the middle of the year (graph). However, the statistical analysis suggest that there is not a strong monotonic trend observed in the data (p-value = 0.04965).
 
 15. Subtract the seasonal component from the `GaringerOzone.monthly.ts`. Hint: Look at how we extracted the series components for the EnoDischarge on the lesson Rmd file.
 
@@ -256,4 +255,4 @@ garinger_ozone_noseason_mk
 summary(garinger_ozone_noseason_mk)
 ```
 
-> Answer: The Mann-Kendall test when seasonality is removed still suggests that there is no monotonic trend present in the dataset (p-value = 0.7886). Overall, this study suggests that although there are seasonal trends in ozone concentrations at this site, concentrations are not significantly changing over the study period.
+> Answer: The Mann-Kendall test when seasonality is removed still suggests that there is a significant monotonic trend present in the dataset (p-value = 0.00754). Overall, this study suggests that when seasonality is removed, there is a trend in the data but this is not observed when seasonality is included.
