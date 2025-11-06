@@ -70,13 +70,14 @@ GasPlants <- st_read(here('Data/Spatial/Manufactured_Gas_Plant_Sites.geojson'))
 class(GasPlants)
 glimpse(GasPlants)
 str(GasPlants$geometry)
+  # XY Coordinate that can tell you location.
 
 #Explore as a spatial dataframe...
 #View using sf plot
-plot(GasPlants['status'],pch=16)
+plot(GasPlants['status'],pch=16) #Specify the column you want, color by is "status", 
 
 #View using ggplot
-ggplot(data=GasPlants) + geom_sf(aes(color=status))
+ggplot(data=GasPlants) + geom_sf(aes(color=status)) #geom_sf for spatial analysis, many commands are the same, axis are long-lat
 
 #View using mapview
 mapview(GasPlants, zcol='status')
@@ -127,7 +128,7 @@ EPAair <- read.csv(
 EPAair.sites <- EPAair %>% 
   group_by(Site.Name, COUNTY, mean_Lat, mean_Lng) %>% 
   summarize(
-    mean_Ozone = mean(Ozone, na.rm=T), #What does "na.rm=T" do? Is it necessary?
+    mean_Ozone = mean(Ozone, na.rm=T), #What does "na.rm=T" do? Is it necessary? - Run with data that exists and ignore ND entries.
     mean_PM25 = mean(PM2.5, na.rm=T),
     count_all = n(),                   #Adds a record count column
     count_Ozone = sum(!is.na(Ozone)),  #Counts the rows w/Ozone data
@@ -148,7 +149,8 @@ st_write(
   driver='ESRI Shapefile'
   )
 
-#View the sf object using the methods above...
+#View the sf object using the methods above
+mapview(EPAair.sf, cex='mean_PM25') #cex allows you to resize the points based on a variable
 
 ```
 
@@ -162,10 +164,10 @@ st_write(
 #First create a simple feature geometry object ("sfg")
 sfg_GraingerHall <- st_point(c(-78.9427,36.00465))
 class(sfg_GraingerHall)
-mapview(sfg_GraingerHall)
+mapview(sfg_GraingerHall) # Struggles to plot this because it knows what the coordinates are, its doesnt know where the reference is (missing spatial reference)
 
 #Upgrade to a simple feature geometry column by adding a crs 
-sfc_GraingerHall <- st_sfc(sfg_GraingerHall,crs=4326)
+sfc_GraingerHall <- st_sfc(sfg_GraingerHall,crs=4326) # Specified CRS
 class(sfc_GraingerHall)
 mapview(sfc_GraingerHall)
 
@@ -187,6 +189,11 @@ So, we see that our "sf" dataframe works much like our familiar dataframe, only 
 Each of the above datasets we explored use lat/long coordinates in defining their geometries. We actually specify that these use lat/long coordinate when creating them via the `crs = 4326` parameter you see in the examples. But what is "4326"?? And what is the significance of this?
 
 Let's explore:
+
+# Important crs:
+- EPSG 4326 (WGS84)
+- EPSG 102008 (NAD83)
+- UTM
 
 ## EXERCISE: Buffering - a simple spatial analyis
 
@@ -272,8 +279,8 @@ Say we want to the distance between our EPA sites and the nearest Gas Plant. We 
 
 ```{r Transform the dataset}
 #Transform the datasets to use UTM 17 N, WGS84
-EPAair.sf.utm <- st_transform(EPAair.sf,32617)
-GasPlants.utm <- st_transform(GasPlants,32617)
+EPAair.sf.utm <- st_transform(EPAair.sf,32617) # Reprojected to UTM
+GasPlants.utm <- st_transform(GasPlants,32617) # Reprojected to UTM
 
 #Have a look at the coordinates associated with the geometries
 EPAair.sf.utm$geometry[1]
@@ -285,6 +292,8 @@ ggplot() +
 
 #Create a distance matrix between the point in each dataset
 distance_matrix <- st_distance(EPAair.sf.utm, GasPlants.utm, pairwise=T)
+ # st_distance inputs two dataframes and calculates pairwise distance between points
+ # Use this to find site distance from a point or something
 dim(distance_matrix)
 
 #Compute the mean of each row (each EPA site)

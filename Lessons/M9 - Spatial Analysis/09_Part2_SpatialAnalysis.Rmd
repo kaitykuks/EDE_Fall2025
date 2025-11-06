@@ -116,16 +116,16 @@ mapView(counties_sf)
 
 ```{r read HUCs shapefile}
 #Read the shapefile into an sf dataframe named "huc8_sf"
-huc8_sf <- 
+huc8_sf <- st_read(here('Data/Spatial/NCHUC8.shp'))
 
 #Reveal the column names
-
+colnames(huc8_sf)
 
 #Check the CRS
-
+st_crs(huc8_sf) #WGS84
 
 #View the data as a map, colored by the acreage in each
-
+mapview(huc8_sf, zcol = 'ACRES')
 
 ```
 
@@ -136,10 +136,14 @@ huc8_sf <-
 
 ```{r Select the Upper Neuse HUC 8}
 #Read the shapefile into an sf dataframe
+huc8_sf_neuse <- st_read(here('Data/Spatial/NCHUC8.shp')) %>%
+  filter(SUBBASIN == 'Upper Neuse')
 
 
 #Create a map
 
+mapview(huc8_sf, col.regions = 'white') +
+  mapview(huc8_sf_neuse, col.regions = 'yellow')
 
 ```
 
@@ -217,14 +221,23 @@ ggplot() +
 
 ```{r}
 #Import data, setting HUC_12 to be factors, and computing a HUC_8 column
-
+huc8_wind <- read.csv('https://raw.githubusercontent.com/ENV859/EnviroAtlasData/main/Wind_Energy.csv')
+huc8_wind$HUC_12 <- as.factor(huc8_wind$HUC_12)
+huc8_wind_final <- huc8_wind %>%
+  mutate(HUC_8 = substr(HUC_12, 0, 8)) %>%
+  group_by(HUC_8) %>%
+  summarise(SumWindEnergy = sum(AvgWindEnergy))
   
 #Join to HUC_8 features
-
+hu8_data <- huc8_sf %>%
+  left_join(
+    huc8_wind_final,
+    by = c("HUC_8")
+  )
 
 #View the outputs
 
-
+########### This isnt right????
 ```
 
 ## 3.2 Spatial data aggregation with `group_by` and `summarize`.
@@ -247,14 +260,18 @@ mapview(state_sf)
 
 ```{r Aggregate the HUC data on an attribute, saving as huc2_sf}
 #List the unique values in the DWQ_Basin field
-
+unique(huc8_sf$DWQ_Basin)
 
 #Summarize on DWQ Basin value
-huc2_sf <- 
+huc2_sf <- huc8_sf%>%
+  group_by(DWQ_Basin) %>%
+  summarize(
+    ACRES = sum(ACRES)
+  )
   
 
 #Map the data
-
+mapview(huc2_sf, zcol = 'ACRES')
 
 ```
 
@@ -422,7 +439,7 @@ mapView(counties_sf[resultMask,])
 > Questions: how might we use the `st_buffer` function to show all counties within 30km of the site?
 
 ```{r Select counties within a 30 km area from the site}
-
+the_buffer <- theSite_sfc %>% st_buffer(30000)
                             
 ```
 
