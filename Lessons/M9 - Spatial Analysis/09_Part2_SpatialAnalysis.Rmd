@@ -142,8 +142,13 @@ huc8_sf_neuse <- st_read(here('Data/Spatial/NCHUC8.shp')) %>%
 
 #Create a map
 
-mapview(huc8_sf, col.regions = 'white') +
-  mapview(huc8_sf_neuse, col.regions = 'yellow')
+mapview(huc8_sf, col.regions = 'gray') +
+  mapview(huc8_sf_neuse, col.regions = 'yellow', color = 'blue')
+
+ggplot() +
+  geom_sf(data = huc8_sf) +
+  geom_sf(data = 
+            huc8_sf_neuse, fill = 'yellow', color = 'blue')
 
 ```
 
@@ -221,7 +226,7 @@ ggplot() +
 
 ```{r}
 #Import data, setting HUC_12 to be factors, and computing a HUC_8 column
-huc8_wind <- read.csv('https://raw.githubusercontent.com/ENV859/EnviroAtlasData/main/Wind_Energy.csv')
+huc8_wind <- read_csv('https://raw.githubusercontent.com/ENV859/EnviroAtlasData/main/Wind_Energy.csv')
 huc8_wind$HUC_12 <- as.factor(huc8_wind$HUC_12)
 huc8_wind_final <- huc8_wind %>%
   mutate(HUC_8 = substr(HUC_12, 0, 8)) %>%
@@ -229,7 +234,7 @@ huc8_wind_final <- huc8_wind %>%
   summarise(SumWindEnergy = sum(AvgWindEnergy))
   
 #Join to HUC_8 features
-hu8_data <- huc8_sf %>%
+huc8_data <- huc8_sf %>%
   left_join(
     huc8_wind_final,
     by = c("HUC_8")
@@ -237,7 +242,9 @@ hu8_data <- huc8_sf %>%
 
 #View the outputs
 
-########### This isnt right????
+ggplot(huc8_data) +
+  geom_sf(aes(fill = SumWindEnergy))
+
 ```
 
 ## 3.2 Spatial data aggregation with `group_by` and `summarize`.
@@ -268,7 +275,6 @@ huc2_sf <- huc8_sf%>%
   summarize(
     ACRES = sum(ACRES)
   )
-  
 
 #Map the data
 mapview(huc2_sf, zcol = 'ACRES')
@@ -327,12 +333,14 @@ myMap
 #Select intersecting counties using the `filter()` command
 neuse_intersect <- counties_sf_utm %>%  
   st_filter(neuse_sf, .predicate = st_intersects)
+  # use this instead of st_filter
 
 #View the result
 myMap + mapview(neuse_intersect, alpha.regions = 0, color='red')
 
 #Actually intersect the counties (not just select those that intersect)
 neuse_counties_sf <- neuse_sf %>% st_intersection(counties_sf_utm)
+  # does the cookie cutting
 
 #View the result
 myMap + mapview(neuse_counties_sf, alpha.regions = 0)
@@ -439,7 +447,16 @@ mapView(counties_sf[resultMask,])
 > Questions: how might we use the `st_buffer` function to show all counties within 30km of the site?
 
 ```{r Select counties within a 30 km area from the site}
-the_buffer <- theSite_sfc %>% st_buffer(30000)
+the_buffer <- theSite_sfc %>% st_buffer(theSite_sfc_transformed,30000)
+
+# Create a boolean mask
+
+resultmask <- st_intersects(counties_sf_utm,
+                            the_buffer,
+                            sparse = FALSE)
+
+# Filter the counties dataset using the boolean mask
+setCounties2 <- counties_sf_utm[resultmask,]
                             
 ```
 
