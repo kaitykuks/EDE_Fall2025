@@ -107,13 +107,13 @@ In the code chunk below, see if you can extract the Facility Name and Facility T
 
 ```{r scraping.exercise.1}
 the_facility_name <- webpage %>% 
-  html_nodes() %>% 
+  html_nodes("tr:nth-child(2) th+ .left:nth-child(2)") %>% 
   html_text()
 the_facility_name
 
-the_facility_type <- webpage  
-  
-  
+the_facility_type <- webpage   %>%
+  html_node("tr:nth-child(2) .left~ .left+ td.left") %>%
+  html_text()
 the_facility_type
 ```
 
@@ -122,7 +122,7 @@ Next, we'll extract multiple items from the web page into a list object. Using S
 Below is the code to extract average daily withdrawls. Add your code to extract max daily withdrawals into the `max_withdrawals` variable.
 ```{r scraping.multiple.objects}
 avg_withdrawals <- webpage %>% 
-  html_nodes('.table:nth-child(7) td:nth-child(7) , .table:nth-child(7) td:nth-child(3)') %>%
+  html_nodes(".table:nth-child(7) td:nth-child(7) , .table:nth-child(7) td:nth-child(3)") %>%
   html_text()
 avg_withdrawals
 
@@ -145,7 +145,7 @@ df_withdrawals <- data.frame("Month" = c(1,7,2,8,3,9,4,10,5,11,6,12), #<--NOTE: 
 
 #Modify the dataframe to include the facility name and type as well as the date (as date object)
 df_withdrawals <- df_withdrawals %>% 
-  mutate(Registrant = !!the_registrant,
+  mutate(Registrant = !!the_registrant, # what was the !! again??
          Facility_name = !!the_facility_name,
          Facility_type = !!the_facility_type,
          Date = my(paste(Month,"-",Year)))
@@ -160,8 +160,6 @@ ggplot(df_withdrawals,aes(x=Date,y=Avg_Withdrawals_mgd)) +
        x="Date")
 ```
 
-
-
 # Part 2. Automating the scraping process
 
 ## 2.1 Streamline the process
@@ -173,7 +171,7 @@ This begins by setting the parameters of the page we'll be scraping to variables
 #Construct the scraping web address, i.e. its URL
 the_base_url <- 'https://www.ncwater.org/WUDC/app/WWATR/report/view'
 the_facility <- '0004-0001'
-the_year <- 2020
+the_year <- 2015
 the_scrape_url <- paste0(the_base_url, '/', the_facility, '/', the_year)
 print(the_scrape_url)
 
@@ -205,7 +203,7 @@ df_withdrawals <- data.frame("Month" = c(1,7,2,8,3,9,4,10,5,11,6,12), #<--NOTE: 
 ggplot(df_withdrawals,aes(x=Date,y=Avg_Withdrawals_mgd)) + 
   geom_line() + 
   geom_smooth(method="loess",se=FALSE) +
-  labs(title = paste("2020 Water usage data for",the_registrant),
+  labs(title = paste(the_year, "Water usage data for",the_registrant),
        subtitle = the_facility_name,
        y="Withdrawal (mgd)",
        x="Date")
