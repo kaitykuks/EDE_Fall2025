@@ -30,6 +30,14 @@ theme_set(mytheme)
 ```
 
 
+## Notes
+
+read_html(): reads a web page into a parsable object
+html_nodes(): extracts elements with provided tags
+html_text(): gets the text associated with an element
+
+
+
 # Part 1. Scraping data
 
 ## What does it mean to "scrape data" from the web?
@@ -142,6 +150,9 @@ df_withdrawals <- data.frame("Month" = c(1,7,2,8,3,9,4,10,5,11,6,12), #<--NOTE: 
                              "Year" = rep(2020,12),
                              "Avg_Withdrawals_mgd" = as.numeric(avg_withdrawals),
                              "Max_Withdrawals_mgd" = as.numeric(max_withdrawals))
+
+# df_withdrawals <- data.frame("Month" = as.vector(rbind(1:6, 7:12)))
+
 
 #Modify the dataframe to include the facility name and type as well as the date (as date object)
 df_withdrawals <- df_withdrawals %>% 
