@@ -138,40 +138,6 @@ ggplot(gage_data,aes(x=datetime,y=discharge_cfs)) +
   labs(x = "Date",y = "Discharge (cfs)")
 ```
 
-```{r}
-#Set the URL
-theURL_elwha <- 
-  'https://waterservices.usgs.gov/nwis/iv/?sites=12045500&agencyCd=USGS&startDT=2025-11-06T11:24:16.160-08:00&endDT=2025-11-13T11:24:16.160-08:00&parameterCd=00065&format=rdb'
-
-#Get the data, which starts on line 27
-gage_data_elwha <- read.table(
-  theURL_elwha,
-  skip = 27, #Skip non-data lines
-  header=TRUE,
-  sep='\t',
-  stringsAsFactors = T) 
-
-#Update the column headers
-colnames(gage_data_elwha) = c("agency_cd", "site_no", "datetime", "tz_cd","gage_ht_ft", "150691_00060_cd")
-
-#Tidy the data
-gage_data_elwha <- gage_data_elwha %>% 
-  select(datetime, gage_ht_ft) %>% 
-  mutate(datetime = ymd_hm(datetime))
-
-#Plot
-ggplot(gage_data_elwha,aes(x=datetime, y=gage_ht_ft)) + 
-  geom_line() +
-  labs(x = "Date", y = "Gage height [ft]",
-       title = "Elwha River Gage Height 2006 - 2014")
-```
-
-# Continuous median daily discharge (ft3/s) at 12045500
-https://nwis.waterservices.usgs.gov/nwis/iv/?sites=12045500&agencyCd=USGS&startDT=2024-11-13T11:20:31.677-08:00&endDT=2025-11-13T11:20:31.677-08:00&parameterCd=00060&format=rdb
-
-# Continuous median daily gage height (ft) at 12045500 
-https://waterservices.usgs.gov/nwis/iv/?sites=12045500&agencyCd=USGS&startDT=2025-11-06T11:24:16.160-08:00&endDT=2025-11-13T11:24:16.160-08:00&parameterCd=00065&format=rdb
-
 ## APIs
 
 Application programming interfaces, or APIs, are a formalization of the REST request/response process. More precisely, they are web sites that have been designed to allow a client to query specific bits of data from an on-line resource without just "hacking" a URL.
