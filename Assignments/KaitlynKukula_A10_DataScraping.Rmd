@@ -28,6 +28,23 @@ This exercise accompanies the lessons in Environmental Data Analytics on data sc
 ```{r 1. Project Setup, message = FALSE}
 #1 
 
+library(tidyverse)
+library(rvest)
+library(here)
+library(lubridate)
+
+here()
+
+kak_theme <- theme_classic() +
+  theme(plot.title = element_text(size = 11, hjust = 0.5, face = "bold"), #Adjust title
+        axis.text.x = element_text(size = 9), # Adjust x-axis values
+        axis.text.y = element_text(size = 9), # Adjust y-axis values
+        axis.title.x = element_text(size = 10.5, face = "bold"), # Adjust x-axis title
+        axis.title.y = element_text(size = 10.5, face = "bold"), # Adjust y-axis title
+        legend.position = "bottom", # Define legend position
+        legend.text = element_text(size = 9), # Define legend entry sizes
+        legend.title = element_text(size = 9)) # Define legend name sizes
+set_theme(kak_theme)
 
 ```
 
@@ -40,6 +57,8 @@ Indicate this website as the as the URL to be scraped. (In other words, read the
 
 ```{r set.the.scraping.website}
 #2 
+
+lwsp_link <- read_html('https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=03-32-010&year=2024')
 
 ```
 
@@ -59,10 +78,12 @@ In the code chunk below scrape these values, assigning them to four separate var
 
 ```{r scrape.the.data}
 #3 
-
-
+water_system <- lwsp_link %>% html_nodes('div+ table tr:nth-child(1) td:nth-child(2)') %>% html_text()
+pwsid <- lwsp_link %>% html_nodes('td tr:nth-child(1) td:nth-child(5)') %>% html_text()
+owner <- lwsp_link %>% html_nodes('div+ table tr:nth-child(2) td:nth-child(4)') %>% html_text()
+mgd_monthly <- lwsp_link %>% html_nodes('th~ td+ td') %>% html_text()
+  
 ```
-
 
 4. Convert your scraped data into a dataframe. This dataframe should have a column for each of the 4 variables scraped and a row for the month corresponding to the withdrawal data. Also add a Date column that includes your month and year in data format. (Feel free to add a Year column too, if you wish.)
 
@@ -75,9 +96,27 @@ In the code chunk below scrape these values, assigning them to four separate var
 ```{r create.a.dataframe.from.scraped.data}
 #4 
 
+water_dataframe <- data.frame(
+  month = c("01", "05", "09",
+            "02", "06", "10",
+            "03", "07", "11",
+            "04", "08", "12"),
+  year = as.character("2024"),
+  date = dmy(paste0("01-",water_dataframe$month,"-",water_dataframe$year)),
+  water_system = water_system,
+  pwsid = pwsid,
+  owner = owner, 
+  mgd_monthly = as.numeric(mgd_monthly))
 
 #5 
 
+ggplot(water_dataframe, aes(x = month(date), y = mgd_monthly)) +
+  geom_point() +
+  geom_line() +
+  scale_x_continuous(breaks = 1:12, labels = month.abb) +
+  labs(x = NULL,
+       y = "Average Daily Uses [MGD]",
+       title = "Monthly Average Daily Use of Water in Durham, 2024")
 
 ```
 
@@ -90,7 +129,28 @@ In the code chunk below scrape these values, assigning them to four separate var
 
 ```{r construct.a.scraping.function}
 #6. 
+pwsid_input <- 03-32-010
+year_input <- 2024
 
+lwsp_function <- function(pwsid_input, year_input) {
+# Get the URL 
+   lwsp_fcn_url <- ifelse(
+    year_input == '2024' & pwsid_input == '03-32-010',
+    paste0('https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=',
+           pwsid_input,'&year=',year_input),
+    'https://www.ncwater.org'
+    )
+   
+# Fetch the website
+    lwsp_fcn_website <- read_html(lwsp_fcn_url)
+    print(lwsp_fcn_website)
+    
+# Scrape the data
+    water_system_fcn <- lwsp_fcn_url %>% html_nodes('div+ table tr:nth-child(1) td:nth-child(2)') %>% html_text()
+    pwsid_fcn <- lwsp_fcn_url %>% html_nodes('td tr:nth-child(1) td:nth-child(5)') %>% html_text()
+    owner_fcn <- lwsp_fcn_url %>% html_nodes('div+ table tr:nth-child(2) td:nth-child(4)') %>% html_text()
+    mgd_monthly_fcn <- lwsp_fcn_url %>% html_nodes('th~ td+ td') %>% html_text()
+}
 
 ```
 
