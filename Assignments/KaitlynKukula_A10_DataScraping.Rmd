@@ -96,27 +96,27 @@ mgd_monthly <- lwsp_link %>% html_nodes('th~ td+ td') %>% html_text()
 ```{r create.a.dataframe.from.scraped.data}
 #4 
 
-water_dataframe <- data.frame(
-  month = c("01", "05", "09",
+month = c("01", "05", "09",
             "02", "06", "10",
             "03", "07", "11",
-            "04", "08", "12"),
-  year = as.character("2024"),
-  date = dmy(paste0("01-",water_dataframe$month,"-",water_dataframe$year)),
+            "04", "08", "12")
+year = rep("2024", 12)
+
+water_dataframe <- data.frame(
+  date = dmy(paste0("01-",month,"-",year)),
   water_system = water_system,
   pwsid = pwsid,
   owner = owner, 
   mgd_monthly = as.numeric(mgd_monthly))
 
-#5 
-
+#5
 ggplot(water_dataframe, aes(x = month(date), y = mgd_monthly)) +
   geom_point() +
   geom_line() +
   scale_x_continuous(breaks = 1:12, labels = month.abb) +
   labs(x = NULL,
-       y = "Average Daily Uses [MGD]",
-       title = "Monthly Average Daily Use of Water in Durham, 2024")
+       y = "Maximum Daily Usage",
+       title = "Maximum Daily Use of Water by Month in Durham, 2024")
 
 ```
 
@@ -134,22 +134,35 @@ year_input <- 2024
 
 lwsp_function <- function(pwsid_input, year_input) {
 # Get the URL 
-   lwsp_fcn_url <- ifelse(
-    year_input == '2024' & pwsid_input == '03-32-010',
-    paste0('https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=',
-           pwsid_input,'&year=',year_input),
-    'https://www.ncwater.org'
-    )
+   lwsp_fcn_url <- paste0('https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=',
+           pwsid_input,'&year=',year_input)
    
 # Fetch the website
     lwsp_fcn_website <- read_html(lwsp_fcn_url)
-    print(lwsp_fcn_website)
-    
+
 # Scrape the data
-    water_system_fcn <- lwsp_fcn_url %>% html_nodes('div+ table tr:nth-child(1) td:nth-child(2)') %>% html_text()
-    pwsid_fcn <- lwsp_fcn_url %>% html_nodes('td tr:nth-child(1) td:nth-child(5)') %>% html_text()
-    owner_fcn <- lwsp_fcn_url %>% html_nodes('div+ table tr:nth-child(2) td:nth-child(4)') %>% html_text()
-    mgd_monthly_fcn <- lwsp_fcn_url %>% html_nodes('th~ td+ td') %>% html_text()
+    water_system_fcn <- lwsp_fcn_website %>% html_nodes('div+ table tr:nth-child(1) td:nth-child(2)') %>% html_text()
+    pwsid_fcn <- lwsp_fcn_website %>% html_nodes('td tr:nth-child(1) td:nth-child(5)') %>% html_text()
+    owner_fcn <- lwsp_fcn_website %>% html_nodes('div+ table tr:nth-child(2) td:nth-child(4)') %>% html_text()
+    mgd_monthly_fcn <- lwsp_fcn_website %>% html_nodes('th~ td+ td') %>% html_text()
+
+# Construct a data frame
+    
+    month = c("01", "05", "09",
+            "02", "06", "10",
+            "03", "07", "11",
+            "04", "08", "12")
+    year = rep(year_input, 12)
+    
+    water_dataframe_fcn <- data.frame(
+      date = dmy(paste0("01-",month,"-",year)),
+      water_system_fcn = water_system_fcn,
+      pswid_fcn = pwsid_input,
+      owner_fcn = owner_fcn,
+      mgd_monthly_fcn = as.numeric(mgd_monthly_fcn))
+
+# Return the dataframe
+    return(water_dataframe_fcn)
 }
 
 ```
@@ -158,29 +171,66 @@ lwsp_function <- function(pwsid_input, year_input) {
 
 ```{r fetch.and.plot.Durham.2020.data}
 #7 
+water_durham_2020 <- lwsp_function('03-32-010', 2020)
 
-
+ggplot(water_durham_2020, aes(x = month(date), y = mgd_monthly_fcn)) +
+  geom_point() +
+  geom_line() +
+  scale_x_continuous(breaks = 1:12, labels = month.abb) +
+  labs(x = NULL,
+       y = "Maximum Daily Usage",
+       title = "Maximum Daily Use of Water by Month in Durham, 2020")
 ```
 
 8. Use the function above to extract data for Cary (PWSID = '03-32-010') in 2020. Combine this data with the Durham data collected above and create a plot that compares Cary's to Durham's water withdrawals.
 
 ```{r fetch.and.plot.Cary.2020.data}
 #8 
+# Get Cary 2020 data
+water_cary_2020 <- lwsp_function('03-92-020', 2020)
 
+# Combine Cary and Durham data
+water_nc_2020 <- rbind(water_durham_2020, water_cary_2020)
 
+# Plot Cary and Durham data
+ggplot(water_nc_2020) +
+  geom_point(aes(x = month(date), y = mgd_monthly_fcn, color = water_system_fcn)) +
+  geom_point(aes(x = month(date), y = mgd_monthly_fcn, color = water_system_fcn)) +
+  geom_line(aes(x = month(date), y = mgd_monthly_fcn, color = water_system_fcn)) +
+  geom_line(aes(x = month(date), y = mgd_monthly_fcn, color = water_system_fcn)) +
+  scale_x_continuous(breaks = 1:12, labels = month.abb) +
+  labs(x = NULL, y = "Maximum Daily Usage",
+       title = "Maximum Daily Use of Water by Month in Two NC Counties, 2020",
+       color = "County") +
+  theme(legend.position = "bottom")
 ```
 
 
-9. Use the code & function you created above to plot Cary's max daily withdrawal by months for the years 2018 thru 2023.Add a smoothed line to the plot (method = 'loess').
+9. Use the code & function you created above to plot Cary's max daily withdrawal by months for the years 2018 thru 2023. Add a smoothed line to the plot (method = 'loess').
 
 > TIP: See Section 3.2 in the "10_Data_Scraping.Rmd" where we apply "map2()" to iteratively run a function over two inputs. Pipe the output of the map2() function to `bind_rows()` to combine the dataframes into a single one, and use that to construct your plot.
 
 ```{r fetch.and.plot.Cary.multiyear.data }
 #9 
 
+# Create a vector of years 2018 - 2023
+cary_mgd_years <- as.numeric(c(2018:2023))
+
+# Get the data
+cary_mgd <- map2('03-92-020', cary_mgd_years, lwsp_function) %>% 
+  bind_rows()
+
+# Create the plot
+ggplot(cary_mgd, aes(x = date, y = mgd_monthly_fcn)) +
+  geom_point() +
+  geom_line() +
+  geom_smooth(method = "loess") +
+  labs(x = "Year", y = "Maximum Daily Usage",
+       title = "Maximum Daily Use of Water in Cary from 2018 - 2023") +
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y")
 
 ```
 
 Question: Just by looking at the plot (i.e. not running statistics), does Cary have a trend in water usage over time?
-> Answer:
+> Answer: Yes, it appears that water usage peaks in the middle of the year during the summer. There may be a slight increase in usage over the years, but there is not a definitive increasing trend here.
 >
